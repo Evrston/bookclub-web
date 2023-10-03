@@ -6,7 +6,7 @@ export const Text = ({ children, ...props }) => (
 
 Text.ScreenTitle = ({ children, ...props }) => (
   <ChakraText
-    fontSize="20px"
+    fontSize="24px"
     fontWeight="extrabold"
     color="brand.black"
     {...props}

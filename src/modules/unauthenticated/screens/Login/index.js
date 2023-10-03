@@ -8,11 +8,12 @@ export const LoginScreen = () => {
         alignItems="flex-start"
         justifyContent="center"
         flexDir="column"
-        w="40%"
+        w={['100%', '100%', '100%', '40%']}
         h="100%"
-        paddingLeft="112px"
+        paddingLeft={['0px', '0px', '0px', '112px']}
+        padding={['24px', '48px', '80px']}
       >
-        <Flex flexDir="column" w="416px">
+        <Flex flexDir="column" w={['100%', '100%', '100%', '416px']}>
           <Image src="/img/logo.svg" alt="BoockClub Logo" w="160px" h="48px" />
           <Text.ScreenTitle mt="48px">Login</Text.ScreenTitle>
           <Input mt="24px" placeholder="Email@exemplo.com" />
@@ -39,7 +40,7 @@ export const LoginScreen = () => {
         </Flex>
       </Flex>
       <Flex
-        w="60%"
+        w={['0%', '0%', '0%', '60%']}
         h="100vh"
         objectFit="inherit"
         backgroundImage="url('/img/auth_background.svg')"
