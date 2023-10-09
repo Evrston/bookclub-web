@@ -2,7 +2,6 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { theme } from 'styles'
 import { RouterProvider } from 'react-router-dom'
 import { router } from 'router'
-export { router } from 'router'
 
 function App() {
   return (
