@@ -7,7 +7,7 @@ import {
 
 export const unauthRoutes = [
   {
-    path: '/',
+    path: '/login',
     element: <LoginScreen />
   },
   {

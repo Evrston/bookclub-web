@@ -44,6 +44,7 @@ export const LoginScreen = () => {
             id="email"
             name="email"
             value={values.email}
+            type="email"
             mt="24px"
             placeholder="Email@exemplo.com"
             onChange={handleChange}

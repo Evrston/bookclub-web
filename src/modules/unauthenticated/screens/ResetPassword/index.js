@@ -1,9 +1,34 @@
 import { Flex, Image } from '@chakra-ui/react'
 import { Text, Input, Link, Button } from 'components'
-// import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { useFormik } from 'formik'
+import * as Yup from 'yup'
 
 export const ResetPasswordScreen = () => {
-  // const navigate = useNavigate()
+  const navigate = useNavigate()
+
+  const { handleSubmit, handleChange, values, errors } = useFormik({
+    initialValues: {
+      token: '',
+      password: '',
+      confirmPassword: ''
+    },
+    validationSchema: Yup.object({
+      token: Yup.string()
+        .required('')
+        .length(4, 'Token deve conter 4 caracteres')
+        .required('Token é obrigatório'),
+      password: Yup.string()
+        .min(6, 'A senha deve conter mais que 6 caracteres.')
+        .required('Senha é obrigatório.'),
+      confirmPassword: Yup.string()
+        .required('')
+        .oneOf([Yup.ref('password'), null], 'Senhas não coincidem.')
+    }),
+    onSubmit: (data) => {
+      navigate('/login')
+    }
+  })
 
   return (
     <Flex flexDir="row" w="100vw" h="100vh">
@@ -22,10 +47,40 @@ export const ResetPasswordScreen = () => {
             Digite o código enviado para o seu E-mail e escolha uma nova senha
             nos campos abaixo:
           </Text>
-          <Input mt="24px" placeholder="Ex:0000" />
-          <Input type="password" mt="16px" placeholder="Nova senha" />
-          <Input type="password" mt="16px" placeholder="Confirmar nova senha" />
-          <Button mt="24px">Salvar</Button>
+          <Input
+            id="token"
+            name="token"
+            type="text"
+            value={values.token}
+            onChange={handleChange}
+            error={errors.token}
+            mt="24px"
+            placeholder="Ex:0000"
+            maxLength={4}
+          />
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            value={values.password}
+            onChange={handleChange}
+            error={errors.password}
+            mt="16px"
+            placeholder="Nova senha"
+          />
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="confirmPassword"
+            value={values.confirmPassword}
+            onChange={handleChange}
+            error={errors.confirmPassword}
+            mt="16px"
+            placeholder="Confirmar nova senha"
+          />
+          <Button onClick={handleSubmit} mt="24px">
+            Salvar
+          </Button>
           <Flex wd="100%" alignItems="center" justifyContent="center" mt="52px">
             <Text fontSize="16px" color="brand.greyDark">
               Não recebeu o código ?
