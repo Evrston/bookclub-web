@@ -1,11 +1,38 @@
-import { Flex, Image } from '@chakra-ui/react'
+import { Flex, Image, useToast } from '@chakra-ui/react'
 import { Text, Input, Link, Button } from 'components'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import { useMutation } from 'react-query'
+import { resetPassword } from 'services/api/requests'
 
 export const ResetPasswordScreen = () => {
   const navigate = useNavigate()
+  const toast = useToast()
+  const [SearchParams] = useSearchParams()
+
+  const mutation = useMutation((data) => resetPassword(data), {
+    onError: (error) => {
+      toast({
+        title: 'Falha na requisição.',
+        description:
+          error?.response?.data?.error ||
+          'Falha na requisição! tente novamente mais tarde.',
+        status: 'error',
+        duration: 2000,
+        isClosable: true
+      })
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Senha redefinida com sucesso!',
+        status: 'success',
+        duration: 5000,
+        isClosable: true
+      })
+      navigate('/login')
+    }
+  })
 
   const { handleSubmit, handleChange, values, errors } = useFormik({
     initialValues: {
@@ -16,7 +43,7 @@ export const ResetPasswordScreen = () => {
     validationSchema: Yup.object({
       token: Yup.string()
         .required('')
-        .length(4, 'Token deve conter 4 caracteres')
+        .length(6, 'Token deve conter 6 caracteres')
         .required('Token é obrigatório'),
       password: Yup.string()
         .min(6, 'A senha deve conter mais que 6 caracteres.')
@@ -26,7 +53,11 @@ export const ResetPasswordScreen = () => {
         .oneOf([Yup.ref('password'), null], 'Senhas não coincidem.')
     }),
     onSubmit: (data) => {
-      navigate('/login')
+      mutation.mutate({
+        email: SearchParams.get('email'),
+        token: data.token,
+        password: data.password
+      })
     }
   })
 
@@ -55,30 +86,32 @@ export const ResetPasswordScreen = () => {
             onChange={handleChange}
             error={errors.token}
             mt="24px"
-            placeholder="Ex:0000"
-            maxLength={4}
+            placeholder="Ex:000000"
+            maxLength={6}
           />
-          <Input
+          <Input.Password
             id="password"
             name="password"
-            type="password"
             value={values.password}
             onChange={handleChange}
             error={errors.password}
             mt="16px"
             placeholder="Nova senha"
           />
-          <Input
+          <Input.Password
             id="confirmPassword"
             name="confirmPassword"
-            type="confirmPassword"
             value={values.confirmPassword}
             onChange={handleChange}
             error={errors.confirmPassword}
             mt="16px"
             placeholder="Confirmar nova senha"
           />
-          <Button onClick={handleSubmit} mt="24px">
+          <Button
+            isLoading={mutation.isLoading}
+            onClick={handleSubmit}
+            mt="24px"
+          >
             Salvar
           </Button>
           <Flex wd="100%" alignItems="center" justifyContent="center" mt="52px">

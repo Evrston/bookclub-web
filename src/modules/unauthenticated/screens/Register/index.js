@@ -1,11 +1,37 @@
-import { Flex, Image } from '@chakra-ui/react'
+import { Flex, Image, useToast } from '@chakra-ui/react'
 import { Text, Input, Link, Button } from 'components'
 import { useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import { useMutation } from 'react-query'
+import { registerCall } from 'services/api/requests'
 
 export const RegisterScreen = () => {
   const navigate = useNavigate()
+  const toast = useToast()
+
+  const mutation = useMutation((newUser) => registerCall(newUser), {
+    onError: (error) => {
+      toast({
+        title: 'Falha ao criar conta.',
+        description:
+          error?.response?.data?.error ||
+          'Falha ao criar conta! tente novamente mais tarde.',
+        status: 'error',
+        duration: 2000,
+        isClosable: true
+      })
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Conta criada com sucesso!.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true
+      })
+      navigate('/login')
+    }
+  })
 
   const { handleSubmit, handleChange, values, errors } = useFormik({
     initialValues: {
@@ -15,7 +41,7 @@ export const RegisterScreen = () => {
       confirmPassword: ''
     },
     validationSchema: Yup.object({
-      name: Yup.string(3, 'Nome deve ter mais que 3 caracteres').required(),
+      name: Yup.string(3, 'Nome deve ter mais que 3 caracteres').required(''),
       email: Yup.string()
         .email('E-mail Inválido.')
         .required('E-mail é obrigatório.'),
@@ -27,7 +53,8 @@ export const RegisterScreen = () => {
         .oneOf([Yup.ref('password'), null], 'Senhas não coincidem.')
     }),
     onSubmit: (data) => {
-      console.log({ data })
+      mutation.mutate(data)
+      console.log(data)
     }
   })
 
@@ -64,8 +91,7 @@ export const RegisterScreen = () => {
             placeholder="E-mail"
             error={errors.email}
           />
-          <Input
-            type="password"
+          <Input.Password
             id="password"
             name="password"
             value={values.password}
@@ -74,8 +100,7 @@ export const RegisterScreen = () => {
             placeholder="Senha"
             error={errors.password}
           />
-          <Input
-            type="password"
+          <Input.Password
             id="confirmPassword"
             name="confirmPassword"
             value={values.confirmPassword}
@@ -84,7 +109,11 @@ export const RegisterScreen = () => {
             placeholder="Confirmar senha"
             error={errors.confirmPassword}
           />
-          <Button onClick={handleSubmit} mt="24px">
+          <Button
+            isLoading={mutation.isLoading}
+            onClick={handleSubmit}
+            mt="24px"
+          >
             Cadastrar
           </Button>
           <Flex wd="100%" alignItems="center" justifyContent="center" mt="52px">

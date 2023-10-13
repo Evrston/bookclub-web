@@ -1,11 +1,40 @@
-import { Flex, Image } from '@chakra-ui/react'
+import { Flex, Image, useToast } from '@chakra-ui/react'
 import { Text, Input, Link, Button } from 'components'
 import { useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import { useMutation } from 'react-query'
+import { loginCall } from 'services/api/requests'
+import { saveItem } from 'services/storage'
+import { SAVE_USERNAME_TOKEN } from 'services/constants'
 
 export const LoginScreen = () => {
   const navigate = useNavigate()
+  const toast = useToast()
+
+  const mutation = useMutation((data) => loginCall(data), {
+    onError: (error) => {
+      toast({
+        title: 'Falha ao realizar login..',
+        description:
+          error?.response?.data?.error ||
+          'Falha ao relizar login! tente novamente mais tarde.',
+        status: 'error',
+        duration: 2000,
+        isClosable: true
+      })
+    },
+    onSuccess: (data) => {
+      toast({
+        title: 'Login realizado com sucesso!.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true
+      })
+      saveItem(SAVE_USERNAME_TOKEN, data?.data?.token)
+      navigate('/home')
+    }
+  })
 
   const { handleSubmit, handleChange, values, errors } = useFormik({
     initialValues: {
@@ -21,11 +50,9 @@ export const LoginScreen = () => {
         .required('Senha é obrigatório.')
     }),
     onSubmit: (data) => {
-      console.log({ data })
+      mutation.mutate(data)
     }
   })
-
-  console.log({ values, errors })
 
   return (
     <Flex flexDir="row" w="100vw" h="100vh">
@@ -50,11 +77,10 @@ export const LoginScreen = () => {
             onChange={handleChange}
             error={errors.email}
           />
-          <Input
+          <Input.Password
             id="password"
             name="password"
             value={values.password}
-            type="password"
             mt="16px"
             placeholder="*************"
             onChange={handleChange}
@@ -70,7 +96,11 @@ export const LoginScreen = () => {
               Esqueceu a senha ?
             </Link>
           </Flex>
-          <Button onClick={handleSubmit} mt="24px">
+          <Button
+            isLoading={mutation.isLoading}
+            onClick={handleSubmit}
+            mt="24px"
+          >
             Entrar
           </Button>
           <Flex wd="100%" alignItems="center" justifyContent="center" mt="52px">
