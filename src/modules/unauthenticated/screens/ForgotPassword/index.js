@@ -43,7 +43,6 @@ export const ForgotPasswordScreen = () => {
     }),
     onSubmit: (data) => {
       mutation.mutate(data)
-      console.log({ data })
     }
   })
 

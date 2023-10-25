@@ -1,4 +1,5 @@
 import { Flex, Image, useToast } from '@chakra-ui/react'
+import { useDispatch } from 'react-redux'
 import { Text, Input, Link, Button } from 'components'
 import { useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
@@ -7,9 +8,11 @@ import { useMutation } from 'react-query'
 import { loginCall } from 'services/api/requests'
 import { saveItem } from 'services/storage'
 import { SAVE_USERNAME_TOKEN } from 'services/constants'
+import { setAll } from 'services/store/slices/user'
 
 export const LoginScreen = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const toast = useToast()
 
   const mutation = useMutation((data) => loginCall(data), {
@@ -32,6 +35,12 @@ export const LoginScreen = () => {
         isClosable: true
       })
       saveItem(SAVE_USERNAME_TOKEN, data?.data?.token)
+      dispatch(
+        setAll({
+          token: data?.data?.token,
+          user: data?.data?.user
+        })
+      )
       navigate('/home')
     }
   })
